@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -27,12 +28,12 @@ public class MyCustomerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private ArrayList<Contact> mContactNames;// 联系人名称字符串数组
     private List<String> mContactList;// 联系人名称List（转换成拼音）
     private List<Contact> resultList; // 最终结果（包含分组的字母）
-    private List<Contact> headerList; // 记录已添加了的用户
+    private Map<String, Contact> mapHeaderList; // 记录已添加了的用户
     private List<String> characterList; // 字母List
     private LetterView letterView;
-    private OnClickCallback callback;
+    private OnItemClickListener callback;
 
-    public void setCallback(OnClickCallback callback) {
+    public void setCallback(OnItemClickListener callback) {
         this.callback = callback;
     }
 
@@ -51,7 +52,7 @@ public class MyCustomerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     }
 
     private void handleContact() {
-        headerList = new ArrayList<>();
+        mapHeaderList = new HashMap<>();
         mContactList = new ArrayList<>();
         Map<String, Contact> map = new HashMap<>();
         for (int i = 0; i < mContactNames.size(); i++) {
@@ -69,7 +70,7 @@ public class MyCustomerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         for (int i = 0; i < mContactList.size(); i++) {
             String name = mContactList.get(i);
             if (mContactNames.get(i).getmType() == ITEM_TYPE.ITEM_TYPE_HEADER.ordinal()) {
-                headerList.add(map.get(name));
+                mapHeaderList.put(map.get(name).getmName(), map.get(name));
                 resultList.add(new Contact(map.get(name).getmName(), ITEM_TYPE.ITEM_TYPE_HEADER.ordinal()));
             }
         }
@@ -88,6 +89,10 @@ public class MyCustomerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 }
             }
             resultList.add(new Contact(map.get(name).getmName(), ITEM_TYPE.ITEM_TYPE_CONTACT.ordinal()));
+        }
+        if (mapHeaderList.size() > 0) {
+            characterList.add(0, "★");
+            resultList.add(0,new Contact("特别关注", ITEM_TYPE.ITEM_TYPE_CHARACTER.ordinal()));
         }
         letterView.upDataLetter(characterList);
     }
@@ -108,23 +113,57 @@ public class MyCustomerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         } else if (viewType == ITEM_TYPE.ITEM_TYPE_CONTACT.ordinal()) {
             return new ContactHolder(mLayoutInflater.inflate(R.layout.item_contact, parent, false));
         } else if (viewType == ITEM_TYPE.ITEM_TYPE_HEADER.ordinal()) {
-            return new ContactHolder(mLayoutInflater.inflate(R.layout.item_contact, parent, false));
+            return new HeaderContactHolder(mLayoutInflater.inflate(R.layout.item_header_contact, parent, false));
         }
         return null;
     }
 
-    public void AddHeaderInfo(Contact contact) {
-        if (!headerList.contains(contact)) {
-            headerList.add(contact);
-            resultList.add(0, new Contact(contact.getmName(), ITEM_TYPE.ITEM_TYPE_HEADER.ordinal()));
-            this.notifyDataSetChanged();
+    /**
+     * 添加顶部条目
+     *
+     * @param contact
+     * @param position
+     */
+    public void AddHeaderInfo(Contact contact, int position) {
+        if (null != mapHeaderList) {
+            if (mapHeaderList.size() == 0) {
+                mapHeaderList.put(contact.getmName(), contact);
+                resultList.add(0, new Contact(contact.getmName(), ITEM_TYPE.ITEM_TYPE_HEADER.ordinal()));
+                resultList.add(0,new Contact("特别关注", ITEM_TYPE.ITEM_TYPE_CHARACTER.ordinal()));
+                this.notifyDataSetChanged();
+            } else {
+                if (!mapHeaderList.containsKey(contact.getmName())) {
+                    if (resultList.get(0).getmName().equals("特别关注")) {
+                        resultList.remove(0);
+                    }
+                    mapHeaderList.put(contact.getmName(), contact);
+                    resultList.add(0, new Contact(contact.getmName(), ITEM_TYPE.ITEM_TYPE_HEADER.ordinal()));
+                    resultList.add(0,new Contact("特别关注", ITEM_TYPE.ITEM_TYPE_CHARACTER.ordinal()));
+                    this.notifyDataSetChanged();
+                }
+            }
+            //更新右边显示条目
+            if (mapHeaderList.size() == 1) {
+                characterList.add(0, "★");
+                letterView.addStart(characterList);
+            }
         }
-
     }
 
-    public void DeleteHeaderInfo(int position) {
-        if (headerList != null) {
-            headerList.remove(position);
+    /**
+     * 删除顶部条目
+     *
+     * @param contact
+     * @param position
+     */
+    public void DeleteHeaderInfo(Contact contact, int position) {
+        if (mapHeaderList != null) {
+            mapHeaderList.remove(contact.getmName());
+        }
+        if (null != mapHeaderList && mapHeaderList.size() == 0) {
+            characterList.remove(0);
+            letterView.removeStart(characterList);
+            resultList.remove(position);
         }
         resultList.remove(position);
         this.notifyDataSetChanged();
@@ -132,16 +171,68 @@ public class MyCustomerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
+    public void onBindViewHolder(final RecyclerView.ViewHolder holder, final int position) {
         if (holder instanceof CharacterHolder) {
             ((CharacterHolder) holder).mTextView.setText(resultList.get(position).getmName());
         } else if (holder instanceof ContactHolder) {
-            ((ContactHolder) holder).mTextView.setText(resultList.get(position).getmName());
-            ((ContactHolder) holder).layout.setOnClickListener(new View.OnClickListener() {
+            if (null != mapHeaderList && mapHeaderList.containsKey(resultList.get(position).getmName())) {
+                ((ContactHolder) holder).mark.setText("★");
+                ((ContactHolder) holder).mTextView.setText(resultList.get(position).getmName());
+                ((ContactHolder) holder).layout.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (null != callback) {
+                            callback.onItemClick(((ContactHolder) holder).layout, resultList.get(position), position);
+                        }
+                    }
+                });
+                ((ContactHolder) holder).mark.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (null != callback) {
+                            callback.onItemClick(((ContactHolder) holder).layout, resultList.get(position), position);
+                        }
+                    }
+                });
+            } else {
+                ((ContactHolder) holder).mark.setText("☆");
+                ((ContactHolder) holder).mTextView.setText(resultList.get(position).getmName());
+                ((ContactHolder) holder).layout.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (null != callback) {
+                            callback.onItemClick(((ContactHolder) holder).layout, resultList.get(position), position);
+                        }
+                    }
+                });
+                ((ContactHolder) holder).mark.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (null != callback) {
+                            callback.onItemClick(((ContactHolder) holder).mark, resultList.get(position), position);
+                        }
+                    }
+                });
+            }
+
+        } else if (holder instanceof HeaderContactHolder) {
+            ((HeaderContactHolder) holder).mark.setText("★");
+            ((HeaderContactHolder) holder).mTextView.setText(resultList.get(position).getmName());
+            ((HeaderContactHolder) holder).layout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (null != callback) {
-                        callback.onItemCallback(resultList.get(position), position);
+                        if (null != callback) {
+                            callback.onItemClick(((HeaderContactHolder) holder).layout, resultList.get(position), position);
+                        }
+                    }
+                }
+            });
+            ((HeaderContactHolder) holder).mark.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (null != callback) {
+                        callback.onItemClick(((HeaderContactHolder) holder).mark, resultList.get(position), position);
                     }
                 }
             });
@@ -166,12 +257,28 @@ public class MyCustomerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     public class ContactHolder extends RecyclerView.ViewHolder {
 
         TextView mTextView;
-        LinearLayout layout;
+        RelativeLayout layout;
+        TextView mark;
 
         ContactHolder(View view) {
             super(view);
-            layout = (LinearLayout) view.findViewById(R.id.item_layout);
+            layout = (RelativeLayout) view.findViewById(R.id.item_layout);
             mTextView = (TextView) view.findViewById(R.id.contact_name);
+            mark = (TextView) view.findViewById(R.id.mark);
+        }
+    }
+
+    public class HeaderContactHolder extends RecyclerView.ViewHolder {
+
+        TextView mTextView;
+        RelativeLayout layout;
+        TextView mark;
+
+        HeaderContactHolder(View view) {
+            super(view);
+            layout = (RelativeLayout) view.findViewById(R.id.item_layout);
+            mTextView = (TextView) view.findViewById(R.id.contact_name);
+            mark = (TextView) view.findViewById(R.id.mark);
         }
     }
 
@@ -189,10 +296,5 @@ public class MyCustomerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             }
         }
         return -1; // -1不会滑动
-    }
-
-
-    public interface OnClickCallback {
-        void onItemCallback(Contact contact, int position);
     }
 }

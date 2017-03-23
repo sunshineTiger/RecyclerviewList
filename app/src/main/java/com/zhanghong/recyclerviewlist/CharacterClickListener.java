@@ -7,5 +7,5 @@ package com.zhanghong.recyclerviewlist;
 public interface CharacterClickListener {
     void clickCharacter(String str);
 
-    void clickArrow();
+
 }

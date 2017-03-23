@@ -5,6 +5,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -13,6 +16,7 @@ public class MainActivity extends AppCompatActivity {
     private LinearLayoutManager layoutManager;
     private LetterView letterView;
     private MyCustomerAdapter adapter;
+    private TextView textView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,15 +27,26 @@ public class MainActivity extends AppCompatActivity {
         layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         contactList.setLayoutManager(layoutManager);
         adapter = new MyCustomerAdapter(this, letterView, getContact());
-        contactList.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST));
+        textView = (TextView) findViewById(R.id.showText);
+//        contactList.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST));
         contactList.setAdapter(adapter);
-        adapter.setCallback(new MyCustomerAdapter.OnClickCallback() {
+        adapter.setCallback(new OnItemClickListener() {
             @Override
-            public void onItemCallback(Contact contact, int position) {
-                if (contact.getmType() != MyCustomerAdapter.ITEM_TYPE.ITEM_TYPE_HEADER.ordinal()) {
-                    adapter.AddHeaderInfo(contact);
-                } else {
-                    adapter.DeleteHeaderInfo(position);
+            public void onItemClick(View view, Object o, int position) {
+                switch (view.getId()) {
+                    case R.id.mark:
+                        if (null != o && o instanceof Contact) {
+                            Contact contact = (Contact) o;
+                            if (contact.getmType() != MyCustomerAdapter.ITEM_TYPE.ITEM_TYPE_HEADER.ordinal()) {
+                                adapter.AddHeaderInfo(contact, position);
+                            } else {
+                                adapter.DeleteHeaderInfo(contact, position);
+                            }
+                        }
+                        break;
+                    case R.id.item_layout:
+                        Toast.makeText(MainActivity.this, "点击了第" + position + "按钮", Toast.LENGTH_SHORT).show();
+                        break;
                 }
 
             }
@@ -39,12 +54,13 @@ public class MainActivity extends AppCompatActivity {
         letterView.setCharaterListener(new CharacterClickListener() {
             @Override
             public void clickCharacter(String str) {
-                layoutManager.scrollToPositionWithOffset(adapter.getScrollPosition(str), 0);
-            }
+                textView.setText(str);
+                if (str.equals("★")) {
+                    layoutManager.scrollToPositionWithOffset(0, 0);
+                } else {
+                    layoutManager.scrollToPositionWithOffset(adapter.getScrollPosition(str), 0);
+                }
 
-            @Override
-            public void clickArrow() {
-                layoutManager.scrollToPositionWithOffset(0, 0);
             }
         });
     }
