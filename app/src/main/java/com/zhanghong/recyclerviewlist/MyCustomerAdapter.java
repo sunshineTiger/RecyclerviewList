@@ -5,7 +5,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -25,10 +24,10 @@ import pinyin.Pinyin;
 public class MyCustomerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private LayoutInflater mLayoutInflater;
     private Context mContext;
-    private ArrayList<Contact> mContactNames;// 联系人名称字符串数组
+    private ArrayList<UserBean> mUserBeanNames;// 联系人名称字符串数组
     private List<String> mContactList;// 联系人名称List（转换成拼音）
-    private List<Contact> resultList; // 最终结果（包含分组的字母）
-    private Map<String, Contact> mapHeaderList; // 记录已添加了的用户
+    private List<UserBean> resultList; // 最终结果（包含分组的字母）
+    private Map<String, UserBean> mapHeaderList; // 记录已添加了的用户
     private List<String> characterList; // 字母List
     private LetterView letterView;
     private OnItemClickListener callback;
@@ -43,10 +42,10 @@ public class MyCustomerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         ITEM_TYPE_CONTACT
     }
 
-    public MyCustomerAdapter(Context mContext, LetterView letterView, ArrayList<Contact> mContactNames) {
+    public MyCustomerAdapter(Context mContext, LetterView letterView, ArrayList<UserBean> mUserBeanNames) {
         this.mContext = mContext;
         this.mLayoutInflater = LayoutInflater.from(mContext);
-        this.mContactNames = mContactNames;
+        this.mUserBeanNames = mUserBeanNames;
         this.letterView = letterView;
         handleContact();
     }
@@ -54,13 +53,13 @@ public class MyCustomerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private void handleContact() {
         mapHeaderList = new HashMap<>();
         mContactList = new ArrayList<>();
-        Map<String, Contact> map = new HashMap<>();
-        for (int i = 0; i < mContactNames.size(); i++) {
-            if (mContactNames.get(i).getmType() == ITEM_TYPE.ITEM_TYPE_HEADER.ordinal()) {
+        Map<String, UserBean> map = new HashMap<>();
+        for (int i = 0; i < mUserBeanNames.size(); i++) {
+            if (mUserBeanNames.get(i).getmType() == ITEM_TYPE.ITEM_TYPE_HEADER.ordinal()) {
 
             } else {
-                String pinyin = transformPinYin(mContactNames.get(i).getmName());
-                map.put(pinyin, mContactNames.get(i));
+                String pinyin = transformPinYin(mUserBeanNames.get(i).getmName());
+                map.put(pinyin, mUserBeanNames.get(i));
                 mContactList.add(pinyin);
             }
         }
@@ -69,9 +68,9 @@ public class MyCustomerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         characterList = new ArrayList<>();
         for (int i = 0; i < mContactList.size(); i++) {
             String name = mContactList.get(i);
-            if (mContactNames.get(i).getmType() == ITEM_TYPE.ITEM_TYPE_HEADER.ordinal()) {
+            if (mUserBeanNames.get(i).getmType() == ITEM_TYPE.ITEM_TYPE_HEADER.ordinal()) {
                 mapHeaderList.put(map.get(name).getmName(), map.get(name));
-                resultList.add(new Contact(map.get(name).getmName(), ITEM_TYPE.ITEM_TYPE_HEADER.ordinal()));
+                resultList.add(new UserBean(map.get(name).getmName(), ITEM_TYPE.ITEM_TYPE_HEADER.ordinal()));
             }
         }
         for (int i = 0; i < mContactList.size(); i++) {
@@ -80,19 +79,19 @@ public class MyCustomerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             if (!characterList.contains(character)) {
                 if (character.hashCode() >= "A".hashCode() && character.hashCode() <= "Z".hashCode()) {
                     characterList.add(character);
-                    resultList.add(new Contact(character, ITEM_TYPE.ITEM_TYPE_CHARACTER.ordinal()));
+                    resultList.add(new UserBean(character, ITEM_TYPE.ITEM_TYPE_CHARACTER.ordinal()));
                 } else {
                     if (!characterList.contains("#")) {
                         characterList.add("#");
-                        resultList.add(new Contact("#", ITEM_TYPE.ITEM_TYPE_CHARACTER.ordinal()));
+                        resultList.add(new UserBean("#", ITEM_TYPE.ITEM_TYPE_CHARACTER.ordinal()));
                     }
                 }
             }
-            resultList.add(new Contact(map.get(name).getmName(), ITEM_TYPE.ITEM_TYPE_CONTACT.ordinal()));
+            resultList.add(new UserBean(map.get(name).getmName(), ITEM_TYPE.ITEM_TYPE_CONTACT.ordinal()));
         }
         if (mapHeaderList.size() > 0) {
             characterList.add(0, "★");
-            resultList.add(0,new Contact("特别关注", ITEM_TYPE.ITEM_TYPE_CHARACTER.ordinal()));
+            resultList.add(0, new UserBean("特别关注", ITEM_TYPE.ITEM_TYPE_CHARACTER.ordinal()));
         }
         letterView.upDataLetter(characterList);
     }
@@ -121,24 +120,24 @@ public class MyCustomerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     /**
      * 添加顶部条目
      *
-     * @param contact
+     * @param userBean
      * @param position
      */
-    public void AddHeaderInfo(Contact contact, int position) {
+    public void AddHeaderInfo(UserBean userBean, int position) {
         if (null != mapHeaderList) {
             if (mapHeaderList.size() == 0) {
-                mapHeaderList.put(contact.getmName(), contact);
-                resultList.add(0, new Contact(contact.getmName(), ITEM_TYPE.ITEM_TYPE_HEADER.ordinal()));
-                resultList.add(0,new Contact("特别关注", ITEM_TYPE.ITEM_TYPE_CHARACTER.ordinal()));
+                mapHeaderList.put(userBean.getmName(), userBean);
+                resultList.add(0, new UserBean(userBean.getmName(), ITEM_TYPE.ITEM_TYPE_HEADER.ordinal()));
+                resultList.add(0, new UserBean("特别关注", ITEM_TYPE.ITEM_TYPE_CHARACTER.ordinal()));
                 this.notifyDataSetChanged();
             } else {
-                if (!mapHeaderList.containsKey(contact.getmName())) {
+                if (!mapHeaderList.containsKey(userBean.getmName())) {
                     if (resultList.get(0).getmName().equals("特别关注")) {
                         resultList.remove(0);
                     }
-                    mapHeaderList.put(contact.getmName(), contact);
-                    resultList.add(0, new Contact(contact.getmName(), ITEM_TYPE.ITEM_TYPE_HEADER.ordinal()));
-                    resultList.add(0,new Contact("特别关注", ITEM_TYPE.ITEM_TYPE_CHARACTER.ordinal()));
+                    mapHeaderList.put(userBean.getmName(), userBean);
+                    resultList.add(0, new UserBean(userBean.getmName(), ITEM_TYPE.ITEM_TYPE_HEADER.ordinal()));
+                    resultList.add(0, new UserBean("特别关注", ITEM_TYPE.ITEM_TYPE_CHARACTER.ordinal()));
                     this.notifyDataSetChanged();
                 }
             }
@@ -153,19 +152,19 @@ public class MyCustomerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     /**
      * 删除顶部条目
      *
-     * @param contact
+     * @param userBean
      * @param position
      */
-    public void DeleteHeaderInfo(Contact contact, int position) {
+    public void DeleteHeaderInfo(UserBean userBean, int position) {
         if (mapHeaderList != null) {
-            mapHeaderList.remove(contact.getmName());
+            mapHeaderList.remove(userBean.getmName());
         }
+        resultList.remove(position);
         if (null != mapHeaderList && mapHeaderList.size() == 0) {
             characterList.remove(0);
             letterView.removeStart(characterList);
-            resultList.remove(position);
+            resultList.remove(0);
         }
-        resultList.remove(position);
         this.notifyDataSetChanged();
     }
 

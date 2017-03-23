@@ -1,6 +1,5 @@
 package com.zhanghong.recyclerviewlist;
 
-import android.content.Context;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -35,12 +34,12 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(View view, Object o, int position) {
                 switch (view.getId()) {
                     case R.id.mark:
-                        if (null != o && o instanceof Contact) {
-                            Contact contact = (Contact) o;
-                            if (contact.getmType() != MyCustomerAdapter.ITEM_TYPE.ITEM_TYPE_HEADER.ordinal()) {
-                                adapter.AddHeaderInfo(contact, position);
+                        if (null != o && o instanceof UserBean) {
+                            UserBean userBean = (UserBean) o;
+                            if (userBean.getmType() != MyCustomerAdapter.ITEM_TYPE.ITEM_TYPE_HEADER.ordinal()) {
+                                adapter.AddHeaderInfo(userBean, position);
                             } else {
-                                adapter.DeleteHeaderInfo(contact, position);
+                                adapter.DeleteHeaderInfo(userBean, position);
                             }
                         }
                         break;
@@ -71,36 +70,36 @@ public class MainActivity extends AppCompatActivity {
         return contactNames;
     }
 
-    private ArrayList<Contact> getContact() {
-        ArrayList<Contact> list = new ArrayList<>();
-        list.add(new Contact("张三丰", MyCustomerAdapter.ITEM_TYPE.ITEM_TYPE_HEADER.ordinal()));
-        list.add(new Contact("郭靖", MyCustomerAdapter.ITEM_TYPE.ITEM_TYPE_HEADER.ordinal()));
-        list.add(new Contact("黄蓉", MyCustomerAdapter.ITEM_TYPE.ITEM_TYPE_HEADER.ordinal()));
-        list.add(new Contact("张三丰", MyCustomerAdapter.ITEM_TYPE.ITEM_TYPE_HEADER.ordinal()));
-        list.add(new Contact("黄老邪", MyCustomerAdapter.ITEM_TYPE.ITEM_TYPE_HEADER.ordinal()));
-        list.add(new Contact("赵敏", MyCustomerAdapter.ITEM_TYPE.ITEM_TYPE_HEADER.ordinal()));
-        list.add(new Contact("张三丰", MyCustomerAdapter.ITEM_TYPE.ITEM_TYPE_HEADER.ordinal()));
-        list.add(new Contact("郭靖", MyCustomerAdapter.ITEM_TYPE.ITEM_TYPE_HEADER.ordinal()));
-        list.add(new Contact("黄老邪", MyCustomerAdapter.ITEM_TYPE.ITEM_TYPE_HEADER.ordinal()));
-        list.add(new Contact("赵敏", MyCustomerAdapter.ITEM_TYPE.ITEM_TYPE_CONTACT.ordinal()));
-        list.add(new Contact("123", MyCustomerAdapter.ITEM_TYPE.ITEM_TYPE_CONTACT.ordinal()));
-        list.add(new Contact("天山童姥", MyCustomerAdapter.ITEM_TYPE.ITEM_TYPE_CONTACT.ordinal()));
-        list.add(new Contact("任我行", MyCustomerAdapter.ITEM_TYPE.ITEM_TYPE_CONTACT.ordinal()));
-        list.add(new Contact("于万亭", MyCustomerAdapter.ITEM_TYPE.ITEM_TYPE_CONTACT.ordinal()));
-        list.add(new Contact("陈家洛", MyCustomerAdapter.ITEM_TYPE.ITEM_TYPE_CONTACT.ordinal()));
-        list.add(new Contact("$6", MyCustomerAdapter.ITEM_TYPE.ITEM_TYPE_CONTACT.ordinal()));
-        list.add(new Contact("穆人清", MyCustomerAdapter.ITEM_TYPE.ITEM_TYPE_CONTACT.ordinal()));
-        list.add(new Contact("陈圆圆", MyCustomerAdapter.ITEM_TYPE.ITEM_TYPE_CONTACT.ordinal()));
-        list.add(new Contact("郭芙", MyCustomerAdapter.ITEM_TYPE.ITEM_TYPE_CONTACT.ordinal()));
-        list.add(new Contact("郭襄", MyCustomerAdapter.ITEM_TYPE.ITEM_TYPE_CONTACT.ordinal()));
-        list.add(new Contact("穆念慈", MyCustomerAdapter.ITEM_TYPE.ITEM_TYPE_CONTACT.ordinal()));
-        list.add(new Contact("东方不败", MyCustomerAdapter.ITEM_TYPE.ITEM_TYPE_CONTACT.ordinal()));
-        list.add(new Contact("梅超风", MyCustomerAdapter.ITEM_TYPE.ITEM_TYPE_CONTACT.ordinal()));
-        list.add(new Contact("林平之", MyCustomerAdapter.ITEM_TYPE.ITEM_TYPE_CONTACT.ordinal()));
-        list.add(new Contact("林远图", MyCustomerAdapter.ITEM_TYPE.ITEM_TYPE_CONTACT.ordinal()));
-        list.add(new Contact("灭绝师太", MyCustomerAdapter.ITEM_TYPE.ITEM_TYPE_CONTACT.ordinal()));
-        list.add(new Contact("段誉", MyCustomerAdapter.ITEM_TYPE.ITEM_TYPE_CONTACT.ordinal()));
-        list.add(new Contact("鸠摩智", MyCustomerAdapter.ITEM_TYPE.ITEM_TYPE_CONTACT.ordinal()));
+    private ArrayList<UserBean> getContact() {
+        ArrayList<UserBean> list = new ArrayList<>();
+        list.add(new UserBean("张三丰", MyCustomerAdapter.ITEM_TYPE.ITEM_TYPE_HEADER.ordinal()));
+        list.add(new UserBean("郭靖", MyCustomerAdapter.ITEM_TYPE.ITEM_TYPE_HEADER.ordinal()));
+        list.add(new UserBean("黄蓉", MyCustomerAdapter.ITEM_TYPE.ITEM_TYPE_HEADER.ordinal()));
+        list.add(new UserBean("张三丰", MyCustomerAdapter.ITEM_TYPE.ITEM_TYPE_HEADER.ordinal()));
+        list.add(new UserBean("黄老邪", MyCustomerAdapter.ITEM_TYPE.ITEM_TYPE_HEADER.ordinal()));
+        list.add(new UserBean("赵敏", MyCustomerAdapter.ITEM_TYPE.ITEM_TYPE_HEADER.ordinal()));
+        list.add(new UserBean("张三丰", MyCustomerAdapter.ITEM_TYPE.ITEM_TYPE_HEADER.ordinal()));
+        list.add(new UserBean("郭靖", MyCustomerAdapter.ITEM_TYPE.ITEM_TYPE_HEADER.ordinal()));
+        list.add(new UserBean("黄老邪", MyCustomerAdapter.ITEM_TYPE.ITEM_TYPE_HEADER.ordinal()));
+        list.add(new UserBean("赵敏", MyCustomerAdapter.ITEM_TYPE.ITEM_TYPE_CONTACT.ordinal()));
+        list.add(new UserBean("123", MyCustomerAdapter.ITEM_TYPE.ITEM_TYPE_CONTACT.ordinal()));
+        list.add(new UserBean("天山童姥", MyCustomerAdapter.ITEM_TYPE.ITEM_TYPE_CONTACT.ordinal()));
+        list.add(new UserBean("任我行", MyCustomerAdapter.ITEM_TYPE.ITEM_TYPE_CONTACT.ordinal()));
+        list.add(new UserBean("于万亭", MyCustomerAdapter.ITEM_TYPE.ITEM_TYPE_CONTACT.ordinal()));
+        list.add(new UserBean("陈家洛", MyCustomerAdapter.ITEM_TYPE.ITEM_TYPE_CONTACT.ordinal()));
+        list.add(new UserBean("$6", MyCustomerAdapter.ITEM_TYPE.ITEM_TYPE_CONTACT.ordinal()));
+        list.add(new UserBean("穆人清", MyCustomerAdapter.ITEM_TYPE.ITEM_TYPE_CONTACT.ordinal()));
+        list.add(new UserBean("陈圆圆", MyCustomerAdapter.ITEM_TYPE.ITEM_TYPE_CONTACT.ordinal()));
+        list.add(new UserBean("郭芙", MyCustomerAdapter.ITEM_TYPE.ITEM_TYPE_CONTACT.ordinal()));
+        list.add(new UserBean("郭襄", MyCustomerAdapter.ITEM_TYPE.ITEM_TYPE_CONTACT.ordinal()));
+        list.add(new UserBean("穆念慈", MyCustomerAdapter.ITEM_TYPE.ITEM_TYPE_CONTACT.ordinal()));
+        list.add(new UserBean("东方不败", MyCustomerAdapter.ITEM_TYPE.ITEM_TYPE_CONTACT.ordinal()));
+        list.add(new UserBean("梅超风", MyCustomerAdapter.ITEM_TYPE.ITEM_TYPE_CONTACT.ordinal()));
+        list.add(new UserBean("林平之", MyCustomerAdapter.ITEM_TYPE.ITEM_TYPE_CONTACT.ordinal()));
+        list.add(new UserBean("林远图", MyCustomerAdapter.ITEM_TYPE.ITEM_TYPE_CONTACT.ordinal()));
+        list.add(new UserBean("灭绝师太", MyCustomerAdapter.ITEM_TYPE.ITEM_TYPE_CONTACT.ordinal()));
+        list.add(new UserBean("段誉", MyCustomerAdapter.ITEM_TYPE.ITEM_TYPE_CONTACT.ordinal()));
+        list.add(new UserBean("鸠摩智", MyCustomerAdapter.ITEM_TYPE.ITEM_TYPE_CONTACT.ordinal()));
         return list;
     }
 }
